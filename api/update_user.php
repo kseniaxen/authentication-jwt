@@ -12,6 +12,7 @@ include_once "../libs/php-jwt/src/ExpiredException.php";
 include_once "../libs/php-jwt/src/SignatureInvalidException.php";
 include_once "../libs/php-jwt/src/JWT.php";
 include_once "../libs/php-jwt/src/Key.php";
+
 use \Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
 
