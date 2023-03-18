@@ -1,5 +1,30 @@
 jQuery(
     $ => {
+        $(document).ready(() => {
+            clearResponse()
+            if (getCookie('jwt') !== '') {
+                showLoggedInMenu()
+            } else {
+                showLoggedOutMenu()
+            }
+        })
+
+        showLoggedOutMenu = () => {
+            $('#login', '#sign_up').show()
+            $('#logout, #update_account, #home').hide()
+        }
+
+        showLoggedInMenu = () => {
+            $('#home, #update_account, #logout').show()
+            $('#login, #sign_up').hide()
+        }
+
+        $('#logout').on('click', () => {
+            window.location.reload();
+            setCookie('jwt', '', 1)
+            showLoggedOutMenu()
+        })
+
         //Form Registr
         $(document).on("click", "#sign_up", () => {
             let html = `
@@ -43,6 +68,7 @@ jQuery(
                 contentType: 'application/json',
                 data: form_data,
                 success: result => {
+                    showLoginPage()
                     $('#response').html(`
                     <div class="alert alert-success" role="alert">
                         Регистрация завершена успешно. Пожалуйста, войдите
@@ -100,11 +126,6 @@ jQuery(
             document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
         }
 
-        showLoggedOutMenu = () => {
-            $('#login', '#sign_up').show()
-            $('#logout').hide()
-        }
-
         $(document).on('submit', '#login_form', (e) => {
             const login_form = $('#sign_up_form')
             const data = new FormData(e.target);
@@ -117,7 +138,7 @@ jQuery(
                 data: form_data,
                 success: result => {
                     setCookie('jwt', result.jwt, 1)
-
+                    $('#home, #update_account, #logout').show()
                     showHomePage()
                     $('#response').html(`
                     <div class='alert alert-success'>
@@ -183,11 +204,6 @@ jQuery(
             return "";
         }
 
-        showLoggedInMenu = () => {
-            $("#login, #sign_up").hide();
-            $("#logout").show();
-        }
-
         showUpdateAccountForm = () => {
             const jwt = getCookie('jwt')
 
@@ -241,7 +257,7 @@ jQuery(
 
             const data = new FormData(e.target);
             let form_data = Object.fromEntries(data.entries())
-            form_data = {...form_data, jwt:jwt}
+            form_data = { ...form_data, jwt: jwt }
             form_data = JSON.stringify(form_data)
 
             $.ajax({
@@ -252,10 +268,10 @@ jQuery(
                 success: result => {
                     $("#response").html("<div class='alert alert-success'>Учетная запись обновлена</div>")
                     setCookie("jwt", result.jwt, 1)
-                }, error:(xhr, resp, text) => {
-                    if(xhr.responseJSON.message == "Невозможно обновить пользователя") {
+                }, error: (xhr, resp, text) => {
+                    if (xhr.responseJSON.message == "Невозможно обновить пользователя") {
                         $("#response").html(`<div class='alert alert-danger'>${xhr.responseJSON.message}</div>`);
-                    } else if(xhr.responseJSON.message == "Доступ закрыт"){
+                    } else if (xhr.responseJSON.message == "Доступ закрыт") {
                         showLoginPage();
                         $("#response").html(`<div class='alert alert-danger'>${xhr.responseJSON.message}</div>`);
                     }
